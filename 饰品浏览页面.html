@@ -1,0 +1,1687 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>饰品手作 - 浏览挑选</title>
+    <style>
+        :root {
+            --bg: #faf8f5;
+            --card-bg: #ffffff;
+            --text: #3d322b;
+            --text-light: #8c7b6e;
+            --accent: #c79a6e;
+            --accent-light: #f0e4d4;
+            --border: #e8e0d8;
+            --shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(250, 248, 245, 0.92);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .header .back-btn {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--card-bg);
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow);
+            visibility: hidden;
+        }
+        .header .back-btn.visible {
+            visibility: visible;
+        }
+        .header .title {
+            font-size: 17px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+        .header .placeholder {
+            width: 36px;
+        }
+
+        /* Main Container */
+        .main {
+            padding: 16px;
+            padding-bottom: 40px;
+        }
+
+        /* Category Grid */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .category-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 28px 16px;
+            text-align: center;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid var(--border);
+            position: relative;
+            overflow: hidden;
+        }
+        .category-card:active {
+            transform: scale(0.97);
+        }
+        .category-card .icon {
+            font-size: 36px;
+            margin-bottom: 10px;
+            display: block;
+        }
+        .category-card .cat-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text);
+        }
+        .category-card .cat-count {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 4px;
+        }
+
+        /* Product List */
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+        .product-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            overflow: hidden;
+            cursor: pointer;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            transition: transform 0.2s;
+        }
+        .product-card:active {
+            transform: scale(0.97);
+        }
+        .product-card .thumb {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            object-fit: cover;
+            display: block;
+            background: var(--accent-light);
+        }
+        .product-card .info {
+            padding: 10px 12px;
+        }
+        .product-card .p-name {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .product-card .p-material {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 2px;
+        }
+
+        /* Detail Page */
+        .detail-page {
+            display: none;
+        }
+        .detail-page.active {
+            display: block;
+        }
+
+        /* Image Carousel */
+        .carousel {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            background: #f0ece6;
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+        .carousel .slides {
+            display: flex;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.35s ease;
+        }
+        .carousel .slide {
+            min-width: 100%;
+            height: 100%;
+        }
+        .carousel .slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .carousel .dots {
+            position: absolute;
+            bottom: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .carousel .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .carousel .dot.active {
+            background: #fff;
+            width: 20px;
+            border-radius: 4px;
+        }
+        .carousel .nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 50%;
+            font-size: 16px;
+            cursor: pointer;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .carousel:hover .nav-btn,
+        .carousel:active .nav-btn {
+            opacity: 1;
+        }
+        .carousel .prev {
+            left: 10px;
+        }
+        .carousel .next {
+            right: 10px;
+        }
+
+        /* Detail Info */
+        .detail-info {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 20px 16px;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+        }
+        .detail-info h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text);
+            text-align: center;
+        }
+        .detail-info .field {
+            margin-bottom: 14px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--border);
+        }
+        .detail-info .field:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .detail-info .field-label {
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 600;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .detail-info .field-value {
+            font-size: 15px;
+            color: var(--text);
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-light);
+        }
+        .empty-state .empty-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.78);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 14px;
+            z-index: 999;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .toast.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Header -->
+    <div class="header">
+        <button class="back-btn" id="backBtn" onclick="goBack()">←</button>
+        <span class="title" id="headerTitle">饰品手作</span>
+        <div class="placeholder"></div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main" id="mainContent"></div>
+
+    <script>
+        // ===================== 产品数据 =====================
+        // 修改这里的图片URL和文案即可更新展示内容
+        const products = [
+            {
+                id: 1,
+                category: "项链",
+                name: "月光之泪 水滴项链",
+                images: [
+                    "https://raw.githubusercontent.com/09Panda29/jewelry-showcase/main/测试1.jpg",
+                    "https://raw.githubusercontent.com/09Panda29/jewelry-showcase/main/测试2.jpg",
+                ],
+                size: "链长 42cm + 5cm 延长链\n吊坠 2.8cm × 1.5cm",
+                material: "925银镀白金、天然月光石、锆石点缀",
+                wearing: "避免剧烈运动时佩戴，防止拉扯变形。\n建议单独存放于首饰盒中，避免与其他饰品摩擦。\n佩戴后可用柔软干布轻拭表面。",
+                care: "远离香水、化妆品及化学品。\n洗澡、游泳、泡温泉时请取下。\n不佩戴时放入密封袋保存以延缓氧化。",
+            },
+            {
+                id: 2,
+                category: "项链",
+                name: "星辰轨迹 双层锁骨链",
+                images: [
+                    "https://raw.githubusercontent.com/09Panda29/jewelry-showcase/main/测试1.jpg",
+                    "https://raw.githubusercontent.com/09Panda29/jewelry-showcase/main/测试2.jpg",
+                ],
+                size: "上层 38cm / 下层 45cm\n吊坠 1.5cm 星形",
+                material: "14K注金、天然珍珠、锆石星芒",
+                wearing: "双层设计可叠戴也可分开佩戴。\n调节扣方便根据不同领口调整长度。\n建议搭配V领或方领上衣展现层次感。",
+                care: "注金材质抗氧化性较好，但仍建议干燥保存。\n珍珠避免接触汗液和化学品。",
+            },
+            {
+                id: 3,
+                category: "手链",
+                name: "春日花语 串珠手链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=手链+图4",
+                    "https://placehold.co/600x600/e0d5c5/8c7b6e?text=手链+图5",
+                ],
+                size: "链长 16cm + 3cm 延长链\n适合手腕围 14-16cm",
+                material: "天然粉晶、紫水晶、淡水珍珠、弹力线编织",
+                wearing: "弹力设计穿脱方便，适合日常佩戴。\n可叠戴手表或其他手链营造层次感。\n避免用力拉扯弹力线。",
+                care: "水晶类避免暴晒，以防褪色。\n弹力线有使用寿命，长期佩戴后如松弛可联系更换。",
+            },
+            {
+                id: 4,
+                category: "手链",
+                name: "极简几何 开口手镯",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手镯+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手镯+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手镯+图3",
+                ],
+                size: "内径 5.8cm × 4.5cm（开口可微调）\n宽度 3mm",
+                material: "黄铜镀18K金、极简几何切割工艺",
+                wearing: "开口设计适合多数手围。\n建议单手佩戴，开口处从手腕侧面滑入。\n可叠戴细链手链增加层次。",
+                care: "镀金层随时间可能自然磨损，属正常现象。\n避免与硬物碰撞以防划痕。\n干燥保存，远离化学品。",
+            },
+            {
+                id: 5,
+                category: "耳饰",
+                name: "晨露 不对称耳挂",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=耳饰+图4",
+                ],
+                size: "左耳 4.5cm 流苏款 / 右耳 2cm 耳钉款\n耳针 925银",
+                material: "925银针、天然淡水珍珠、捷克珠",
+                wearing: "不对称设计左右耳不同造型，上身效果独特。\n适合搭配盘发或侧分发型露出耳部。\n耳挂部分可轻微调整弧度贴合耳廓。",
+                care: "银针部分随时间氧化变黑属正常，可用擦银布恢复。\n珍珠避免接触水、汗液和化妆品。\n建议每次佩戴后用干布擦拭。",
+            },
+            {
+                id: 6,
+                category: "耳饰",
+                name: "复古圆环 锤纹耳圈",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳圈+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳圈+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳圈+图3",
+                ],
+                size: "直径 3cm\n厚度 2mm",
+                material: "黄铜、手工锤纹工艺、防过敏耳针",
+                wearing: "经典圆环款百搭不挑脸型。\n锤纹在光线下呈现细腻光影变化。\n日常通勤或聚会场合均适用。",
+                care: "黄铜材质会自然氧化产生复古质感。\n如需恢复亮泽可用擦铜布擦拭。\n干燥保存即可。",
+            },
+            {
+                id: 7,
+                category: "发饰",
+                name: "山茶花开 手工发夹",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发夹+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发夹+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发夹+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=发夹+图4",
+                ],
+                size: "花朵直径 5cm\n发夹整体长度 8cm",
+                material: "缎面布料、手工染色花瓣、合金发夹底托",
+                wearing: "适合半扎发、低马尾或盘发造型。\n花朵角度可微调，适应不同发型需求。\n建议搭配同色系服饰。",
+                care: "缎面布料避免沾水，不可水洗。\n如有灰尘用软毛刷轻扫即可。\n存放时避免重压以防花瓣变形。",
+            },
+            {
+                id: 8,
+                category: "发饰",
+                name: "珍珠星月 发箍",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发箍+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发箍+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发箍+图3",
+                ],
+                size: "发箍宽度 1.2cm\n适合头围 54-58cm",
+                material: "合金骨架包裹丝绒、淡水珍珠、金属星月装饰",
+                wearing: "佩戴时从头顶向后轻推即可。\n适合散发、低马尾等日常造型。\n珍珠星月元素增添浪漫气息。",
+                care: "珍珠部分避免沾水。\n丝绒表面如有灰尘用粘毛器清理。\n勿弯折过度以防骨架变形。",
+            },
+            {
+                id: 9,
+                category: "胸针",
+                name: "银杏叶落 手工胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=胸针+图4",
+                ],
+                size: "长度 6cm × 宽度 4cm\n针长 2.5cm",
+                material: "铜胎掐丝珐琅工艺、烤漆着色、合金别针",
+                wearing: "可别于大衣领口、围巾、帽子或帆布包上。\n别针有安全扣设计，防止意外打开。\n秋冬搭配深色外套尤为出彩。",
+                care: "珐琅表面避免重摔以防碎裂。\n表面可用微湿软布轻擦。\n存放时注意保护别针尖端。",
+            },
+            {
+                id: 10,
+                category: "戒指",
+                name: "缠绕 双圈开口戒",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指+图3",
+                ],
+                size: "开口可调，适合港码 10-15 号\n戒面宽度 2mm + 1.5mm 双圈",
+                material: "925银、做旧氧化处理",
+                wearing: "双圈缠绕设计有层次感，可单戴或叠戴。\n开口方便调节，适合不同指围。\n日常佩戴不易勾衣物。",
+                care: "银饰氧化后可用擦银布恢复光泽。\n做旧纹理部分避免过度擦拭以保留质感。\n洗澡游泳时取下。",
+            },
+            {
+                id: 11,
+                category: "其他",
+                name: "蝶舞 手工手机链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手机链+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手机链+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手机链+图3",
+                ],
+                size: "总长 18cm（含挂绳）\n蝴蝶装饰 3cm × 2.5cm",
+                material: "亚克力蝴蝶、彩色串珠、尼龙挂绳、合金挂扣",
+                wearing: "挂于手机壳挂绳孔即可使用。\n也可作为包包挂饰一物多用。\n串珠配色可定制。",
+                care: "避免用力拉扯挂绳连接处。\n亚克力表面可用软布擦拭。\n不使用时取下存放。",
+            },
+            {
+                id: 12,
+                category: "其他",
+                name: "秘境花园 钥匙扣挂饰",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=钥匙扣+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=钥匙扣+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=钥匙扣+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=钥匙扣+图4",
+                ],
+                size: "挂饰部分 5cm × 4cm\n钥匙圈直径 3cm",
+                material: "树脂干花、合金钥匙圈、滴胶封层",
+                wearing: "挂于钥匙、包包拉链或作为车内装饰。\n每朵干花均为真实花材，独一无二。\n送礼自用皆宜。",
+                care: "树脂表面避免与尖锐物品摩擦。\n避免长时间暴晒以防干花褪色。\n表面可用软布轻擦。",
+            },
+            {
+                id: 13,
+                category: "包挂",
+                name: "铃兰花开 包包挂饰",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂+图3",
+                    "https://placehold.co/600x600/e8ddd0/8c7b6e?text=包挂+图4",
+                ],
+                size: "总长 15cm（含挂绳）\n花朵装饰 4cm × 3cm",
+                material: "手工钩编棉线、天然铃兰花蕊、合金挂扣",
+                wearing: "挂于包带、拉链头或帆布包提手上。\n铃兰寓意幸福归来，送礼佳品。\n手工钩编每朵略有差异，独一无二。",
+                care: "棉线材质避免沾水，不可水洗。\n如有浮尘用软刷轻扫即可。\n不佩戴时放入防尘袋保存。",
+            },
+            {
+                id: 14,
+                category: "包挂",
+                name: "流年 皮质流苏包挂",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=流苏包挂+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=流苏包挂+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=流苏包挂+图3",
+                ],
+                size: "总长 20cm\n流苏部分 12cm",
+                material: "头层植鞣皮、黄铜五金件、手工染色流苏",
+                wearing: "搭配素色包包可提升整体质感。\n也可作为钥匙挂饰一物多用。\n植鞣皮会随使用时间养出独特色泽。",
+                care: "皮质避免沾水，雨天请取下。\n定期用皮革护理油保养。\n流苏部分避免大力拉扯。",
+            {
+                id: 15,
+                category: "项链",
+                name: "繁星点点 锁骨链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 16,
+                category: "项链",
+                name: "时光轨迹 长项链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 17,
+                category: "项链",
+                name: "琉璃光影 吊坠链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 18,
+                category: "项链",
+                name: "花漾年华 碎花链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 19,
+                category: "项链",
+                name: "简约珍珠 一字链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 20,
+                category: "项链",
+                name: "复古铜币 硬币链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 21,
+                category: "项链",
+                name: "银河碎片 层叠链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 22,
+                category: "项链",
+                name: "晨光微露 细链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=项链-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=项链-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=项链-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 23,
+                category: "手链",
+                name: "月光石 弹力手串",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 24,
+                category: "手链",
+                name: "好运连连 红绳手链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 25,
+                category: "手链",
+                name: "极光 编织手链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 26,
+                category: "手链",
+                name: "波西米亚 串珠链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 27,
+                category: "手链",
+                name: "心跳 双链手环",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 28,
+                category: "手链",
+                name: "青金石 能量手串",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 29,
+                category: "手链",
+                name: "糖果色 多圈手链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 30,
+                category: "手链",
+                name: "星座守护 字母链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=手链-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=手链-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=手链-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 31,
+                category: "耳饰",
+                name: "雪花 不对称耳钉",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 32,
+                category: "耳饰",
+                name: "水滴 长款耳线",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 33,
+                category: "耳饰",
+                name: "复古宫廷 耳坠",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 34,
+                category: "耳饰",
+                name: "羽毛 流苏耳环",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 35,
+                category: "耳饰",
+                name: "几何三角 耳骨夹",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 36,
+                category: "耳饰",
+                name: "珍珠泪 法式耳钩",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 37,
+                category: "耳饰",
+                name: "花朵 手工耳钉",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 38,
+                category: "耳饰",
+                name: "十字星 金属耳圈",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=耳饰-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=耳饰-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=耳饰-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 39,
+                category: "发饰",
+                name: "碎花 弹簧夹",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 40,
+                category: "发饰",
+                name: "复古格纹 蝴蝶结发圈",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 41,
+                category: "发饰",
+                name: "珍珠水钻 发箍",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 42,
+                category: "发饰",
+                name: "麂皮绒 发带",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 43,
+                category: "发饰",
+                name: "大号抓夹",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 44,
+                category: "发饰",
+                name: "迷你鸭嘴夹套装",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 45,
+                category: "发饰",
+                name: "丝绸飘带 发绳",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 46,
+                category: "发饰",
+                name: "金属几何 发插",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=发饰-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=发饰-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=发饰-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 47,
+                category: "胸针",
+                name: "蜻蜓点水 胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-2+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-2+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-2+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 48,
+                category: "胸针",
+                name: "玫瑰盛开 别针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 49,
+                category: "胸针",
+                name: "猫头鹰 复古胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 50,
+                category: "胸针",
+                name: "音符 音乐主题别针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 51,
+                category: "胸针",
+                name: "羽毛笔 文艺胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 52,
+                category: "胸针",
+                name: "小雏菊 清新别针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 53,
+                category: "胸针",
+                name: "蜜蜂采蜜 趣味胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 54,
+                category: "胸针",
+                name: "月亮船 梦幻胸针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 55,
+                category: "胸针",
+                name: "鹿角 森系别针",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=胸针-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=胸针-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=胸针-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 56,
+                category: "戒指",
+                name: "极简素圈 开口戒",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-2+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-2+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-2+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 57,
+                category: "戒指",
+                name: "情侣对戒 缠绕款",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 58,
+                category: "戒指",
+                name: "猫眼石 复古戒指",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 59,
+                category: "戒指",
+                name: "三环相扣 套戒",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 60,
+                category: "戒指",
+                name: "藤蔓 编织戒圈",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 61,
+                category: "戒指",
+                name: "方糖 几何戒指",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 62,
+                category: "戒指",
+                name: "碎钻排戒 叠戴款",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 63,
+                category: "戒指",
+                name: "字母刻字 定制戒",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 64,
+                category: "戒指",
+                name: "羽毛 灵动尾戒",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=戒指-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=戒指-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=戒指-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 65,
+                category: "包挂",
+                name: "小羊 毛绒挂件",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 66,
+                category: "包挂",
+                name: "彩虹 编织包挂",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 67,
+                category: "包挂",
+                name: "幸运四叶草 挂饰",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 68,
+                category: "包挂",
+                name: "小熊 皮质挂件",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 69,
+                category: "包挂",
+                name: "樱花 滴胶包挂",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 70,
+                category: "包挂",
+                name: "星星月亮 金属挂件",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 71,
+                category: "包挂",
+                name: "复古流苏 包挂",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 72,
+                category: "包挂",
+                name: "迷你娃娃 手工挂件",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=包挂-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=包挂-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=包挂-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 73,
+                category: "其他",
+                name: "满天星 胸针扣",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-3+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-3+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-3+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 74,
+                category: "其他",
+                name: "珍珠 手机挂绳",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-4+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-4+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-4+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 75,
+                category: "其他",
+                name: "编织 相机背带",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-5+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-5+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-5+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 76,
+                category: "其他",
+                name: "复古钥匙圈",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-6+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-6+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-6+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 77,
+                category: "其他",
+                name: "迷你香水瓶挂饰",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-7+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-7+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-7+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 78,
+                category: "其他",
+                name: "花朵 书签饰品",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-8+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-8+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-8+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 79,
+                category: "其他",
+                name: "星座 手账链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-9+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-9+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-9+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            },
+            {
+                id: 80,
+                category: "其他",
+                name: "贝壳 脚链",
+                images: [
+                    "https://placehold.co/600x600/f5efeb/8c7b6e?text=其他-10+图1",
+                    "https://placehold.co/600x600/f0e8e0/8c7b6e?text=其他-10+图2",
+                    "https://placehold.co/600x600/ede4da/8c7b6e?text=其他-10+图3",
+                ],
+                size: "待补充",
+                material: "待补充",
+                wearing: "待补充",
+                care: "待补充",
+            }
+        ];
+
+        // 类目列表（按指定顺序）
+        const categories = ["项链", "手链", "耳饰", "发饰", "胸针", "戒指", "包挂", "其他"];
+
+        // 类目图标映射
+        const catIcons = {
+            "项链": "💎", "手链": "✨", "耳饰": "🌙", "发饰": "🎀",
+            "胸针": "🍂", "戒指": "💍", "包挂": "👜", "其他": "🌟",
+        };
+
+        // 页面栈
+        const pageStack = [];
+
+        // ===================== 页面渲染 =====================
+
+        function renderHome() {
+            document.getElementById("headerTitle").textContent = "饰品手作";
+            document.getElementById("backBtn").classList.remove("visible");
+            pageStack.length = 0;
+
+            const html = `
+                <div class="category-grid">
+                    ${categories.map(cat => {
+                        const count = products.filter(p => p.category === cat).length;
+                        return `
+                        <div class="category-card" onclick="renderCategory('${cat}')">
+                            <span class="icon">${catIcons[cat] || '🎁'}</span>
+                            <div class="cat-name">${cat}</div>
+                            <div class="cat-count">${count} 件作品</div>
+                        </div>`;
+                    }).join('')}
+                </div>
+            `;
+            document.getElementById("mainContent").innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function renderCategory(cat) {
+            document.getElementById("headerTitle").textContent = cat;
+            document.getElementById("backBtn").classList.add("visible");
+            pageStack.push("home");
+
+            const items = products.filter(p => p.category === cat);
+            if (items.length === 0) {
+                document.getElementById("mainContent").innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📦</div>
+                        <p>该分类暂无作品，敬请期待</p>
+                    </div>`;
+                window.scrollTo(0, 0);
+                return;
+            }
+
+            const html = `
+                <div class="section-title">${cat} · ${items.length} 件作品</div>
+                <div class="product-grid">
+                    ${items.map(p => `
+                        <div class="product-card" onclick="renderDetail(${p.id})">
+                            <img class="thumb" src="${p.images[0]}" alt="${p.name}" loading="lazy"
+                                 onerror="this.src='https://placehold.co/400x400/f0ece6/8c7b6e?text=暂无图片'">
+                            <div class="info">
+                                <div class="p-name">${p.name}</div>
+                                <div class="p-material">${p.material.split('、')[0]}</div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById("mainContent").innerHTML = html;
+            window.scrollTo(0, 0);
+        }
+
+        function renderDetail(productId) {
+            const p = products.find(x => x.id === productId);
+            if (!p) return;
+
+            document.getElementById("headerTitle").textContent = "作品详情";
+            document.getElementById("backBtn").classList.add("visible");
+            // 如果当前在首页或分类页，推入返回栈
+            if (pageStack.length === 0 || pageStack[pageStack.length - 1] !== p.category) {
+                pageStack.push(p.category);
+            }
+
+            const html = `
+                <div class="detail-page active">
+                    <div class="carousel" id="carousel-${p.id}">
+                        <div class="slides" id="slides-${p.id}">
+                            ${p.images.map((img, i) => `
+                                <div class="slide">
+                                    <img src="${img}" alt="${p.name} - ${i+1}"
+                                         onerror="this.src='https://placehold.co/600x600/f0ece6/8c7b6e?text=暂无图片'">
+                                </div>
+                            `).join('')}
+                        </div>
+                        ${p.images.length > 1 ? `
+                        <button class="nav-btn prev" onclick="prevSlide(${p.id})">‹</button>
+                        <button class="nav-btn next" onclick="nextSlide(${p.id})">›</button>
+                        <div class="dots" id="dots-${p.id}">
+                            ${p.images.map((_, i) => `
+                                <button class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(${p.id}, ${i})"></button>
+                            `).join('')}
+                        </div>
+                        ` : ''}
+                    </div>
+                    <div class="detail-info">
+                        <h2>${p.name}</h2>
+                        <div class="field">
+                            <div class="field-label">尺寸</div>
+                            <div class="field-value">${p.size}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">材料</div>
+                            <div class="field-value">${p.material}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">佩戴须知</div>
+                            <div class="field-value">${p.wearing}</div>
+                        </div>
+                        <div class="field">
+                            <div class="field-label">保养须知</div>
+                            <div class="field-value">${p.care}</div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.getElementById("mainContent").innerHTML = html;
+            window.scrollTo(0, 0);
+
+            // 初始化轮播状态
+            window['currentSlide' + p.id] = 0;
+        }
+
+        // ===================== 轮播控制 =====================
+
+        function goToSlide(productId, index) {
+            const slides = document.getElementById('slides-' + productId);
+            if (!slides) return;
+            slides.style.transform = `translateX(-${index * 100}%)`;
+            window['currentSlide' + productId] = index;
+
+            // 更新 dots
+            const dots = document.querySelectorAll('#dots-' + productId + ' .dot');
+            dots.forEach((d, i) => d.classList.toggle('active', i === index));
+        }
+
+        function nextSlide(productId) {
+            const total = document.querySelectorAll('#slides-' + productId + ' .slide').length;
+            const current = window['currentSlide' + productId] || 0;
+            goToSlide(productId, (current + 1) % total);
+        }
+
+        function prevSlide(productId) {
+            const total = document.querySelectorAll('#slides-' + productId + ' .slide').length;
+            const current = window['currentSlide' + productId] || 0;
+            goToSlide(productId, (current - 1 + total) % total);
+        }
+
+        // 触摸滑动支持
+        document.addEventListener('DOMContentLoaded', () => {
+            document.addEventListener('touchstart', handleTouchStart, { passive: false });
+            document.addEventListener('touchmove', handleTouchMove, { passive: false });
+            document.addEventListener('touchend', handleTouchEnd);
+        });
+
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+        let touchCarouselId = null;
+
+        function handleTouchStart(e) {
+            const carousel = e.target.closest('.carousel');
+            if (!carousel) return;
+            touchCarouselId = parseInt(carousel.id.replace('carousel-', ''));
+            touchStartX = e.touches[0].clientX;
+            touchCurrentX = touchStartX;
+        }
+
+        function handleTouchMove(e) {
+            if (!touchCarouselId) return;
+            touchCurrentX = e.touches[0].clientX;
+        }
+
+        function handleTouchEnd() {
+            if (!touchCarouselId) return;
+            const diff = touchStartX - touchCurrentX;
+            const threshold = 50;
+            if (Math.abs(diff) > threshold) {
+                if (diff > 0) nextSlide(touchCarouselId);
+                else prevSlide(touchCarouselId);
+            }
+            touchCarouselId = null;
+        }
+
+        // ===================== 导航 =====================
+
+        function goBack() {
+            if (pageStack.length === 0) return;
+            const prev = pageStack.pop();
+            if (prev === "home") {
+                renderHome();
+            } else {
+                renderCategory(prev);
+            }
+        }
+
+        // ===================== Toast =====================
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // ===================== 初始化 =====================
+        renderHome();
+    </script>
+</body>
+</html>
